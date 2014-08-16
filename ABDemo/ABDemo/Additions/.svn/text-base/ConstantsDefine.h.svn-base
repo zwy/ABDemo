@@ -1,0 +1,65 @@
+//
+//  ConstantsDefine.h
+//  SendFileToFTP
+//
+//  Created by ZHANG LEI on 11-7-13.
+//  Copyright 2011年 ivysoft. All rights reserved.
+//
+
+static NSString* const kSectionTitleKey = @"sectionTitleKey";
+static NSString* const kSectionFooterKey = @"sectionfooterKey";
+static NSString* const kRowNamesKey = @"RowNamesKey";
+static NSString* const kRowDetailNamesKey = @"RowDetailNamesKey";
+static NSString* const kCellIdentifierName = @"CellIdentifierName";
+static NSString* const kRowcellstylekey = @"Rowcellstylekey";
+static NSString* const kRowaccessoryTypeKey = @"RowaccessoryTypeKey";
+
+static NSString* const kRowFieldTextKey = @"RowFieldTextKey";
+static NSString* const kRowPlaceholdersKey = @"RowPlaceholdersKey";
+static NSString* const kRowTextSecureKey = @"RowTextSecureKey";
+static NSString* const kRowTextKeboardTypeKey = @"RowTextKeboardTypeKey";
+
+static NSString* const kRowButtonColorKey = @"RowButtonColorKey";
+static NSString* const kRowButtonPressColorKey = @"RowButtonPressColorKey";
+
+
+//cell Type  IdentifierName
+#define    basicCell @"basicCell"
+#define    textFieldCell @"textFieldCell"
+#define    buttonCell @"buttonCell"
+#define    detailCell @"detailCell"
+#define    photoCell @"photoCell"
+#define    lableCell @"lableCell"
+#define    draftsCell @"draftsCell"
+
+#define rewardCell @"rewardCell"
+
+//cell style
+#define CellStyleDefault @"UITableViewCellStyleDefault"	// Simple cell with text label and optional image view (behavior of UITableViewCell in iPhoneOS 2.x)
+#define CellStyleValue1 @"UITableViewCellStyleValue1"		// Left aligned label on left and right aligned label on right with blue text (Used in Settings)
+#define CellStyleValue2 @"UITableViewCellStyleValue2"	// Right aligned label on left with blue text and left aligned label on right (Used in Phone/Contacts)
+#define CellStyleSubtitle @"UITableViewCellStyleSubtitle"
+
+//cell accessoryType
+#define CellAccessoryNone @"UITableViewCellAccessoryNone"                   // don't show any accessory view
+#define CellAccessoryDisclosureIndicator @"UITableViewCellAccessoryDisclosureIndicator"    // regular chevron. doesn't track
+#define CellAccessoryDetailDisclosureButton @"UITableViewCellAccessoryDetailDisclosureButton" // blue button w/ chevron. tracks
+#define CellAccessoryCheckmark @"UITableViewCellAccessoryCheckmark"
+
+
+//keybordType
+#define KeyboardTypeDefault @"UIKeyboardTypeDefault"
+               // Default type for the current input method.
+#define KeyboardTypeASCIICapable @"UIKeyboardTypeASCIICapable"           // Displays a keyboard which can enter ASCII characters, non-ASCII keyboards remain active
+#define KeyboardTypeNumbersAndPunctuation @"UIKeyboardTypeNumbersAndPunctuation"  // Numbers and assorted punctuation.
+#define KeyboardTypeURL @"UIKeyboardTypeURL"                    // A type optimized for URL entry (shows . / .com prominently).
+#define KeyboardTypeNumberPad @"UIKeyboardTypeNumberPad"              // A number pad (0-9). Suitable for PIN entry.
+#define KeyboardTypePhonePad @"UIKeyboardTypePhonePad"               // A phone pad (1-9, *, 0, #, with letters under the numbers).
+#define KeyboardTypeNamePhonePad @"UIKeyboardTypeNamePhonePad"           // A type optimized for entering a person's name or phone number.
+#define KeyboardTypeEmailAddress @"UIKeyboardTypeEmailAddress"           // A type optimized for multiple email address entry (shows space @ . prominently).
+#if __IPHONE_4_1 <= __IPHONE_OS_VERSION_MAX_ALLOWED
+#define KeyboardTypeDecimalPad @"UIKeyboardTypeDecimalPad"             // A number pad with a decimal point.
+#endif
+#if __IPHONE_5_0 <= __IPHONE_OS_VERSION_MAX_ALLOWED
+#define KeyboardTypeTwitter @"UIKeyboardTypeTwitter"
+#endif

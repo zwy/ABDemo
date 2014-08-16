@@ -1,0 +1,58 @@
+//
+//  LGHMACAlgorithm.m
+//  Lago
+//
+//  Created by 杜 计生 on 13-6-17.
+//  Copyright (c) 2013年 dujisheng. All rights reserved.
+//
+
+#import "LGHMACAlgorithm.h"
+#import <CommonCrypto/CommonHMAC.h>
+#import <CommonCrypto/CommonCryptor.h>
+#import "GTM_Base64.h"
+@implementation LGHMACAlgorithm
+
++ (NSString *)hmac_sha1:(NSData*)key text:(NSString *)text{
+    Byte *cKey = (Byte *)[key bytes];
+//    const char *cKey  = [key cStringUsingEncoding:NSUTF8StringEncoding];
+    const char *cData = [text cStringUsingEncoding:NSUTF8StringEncoding];
+    
+    char cHMAC[CC_SHA1_DIGEST_LENGTH];
+    
+    CCHmac(kCCHmacAlgSHA1, cKey, [key length], cData, strlen(cData), cHMAC);
+    
+    NSData *HMAC = [[NSData alloc] initWithBytes:cHMAC length:CC_SHA1_DIGEST_LENGTH];
+    NSData *baseData = [GTM_Base64 encodeData:HMAC];
+    NSString *hash = [[NSString alloc] initWithData:baseData encoding:NSUTF8StringEncoding];
+//    [HMAC release];
+    return hash;
+}
+
++ (NSString *)hmac_md5:(NSData *)key text:(NSString *)text{
+    
+    Byte *cKey  = (Byte *)[key bytes];
+    const char *cData = [text cStringUsingEncoding:NSUTF8StringEncoding];
+    
+    char cHMAC[CC_MD5_DIGEST_LENGTH];
+    
+    CCHmac(kCCHmacAlgMD5, cKey, [key length], cData, strlen(cData), cHMAC);
+    
+    NSData *HMAC = [[NSData alloc] initWithBytes:cHMAC length:CC_MD5_DIGEST_LENGTH];
+    NSData *baseData = [GTM_Base64 encodeData:HMAC];
+    NSString *hash = [GTM_Base64 stringByEncodingData:baseData];
+    //    [HMAC release];
+    return hash;
+}
+
++ (NSData *)ivWithNum:(NSInteger)num
+{
+    Byte iv[num];
+    for (int i = 0; i<num; i++) {
+        int key = arc4random() % 5;
+        iv[i] = key;
+    }
+    return [[NSData alloc] initWithBytes:iv length:num];
+}
+
+
+@end

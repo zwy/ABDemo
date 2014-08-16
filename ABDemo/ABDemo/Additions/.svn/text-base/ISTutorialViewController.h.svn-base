@@ -1,0 +1,44 @@
+//
+//  ISTutorialViewController.h
+//  iStudy
+//
+//  Created by liu on 12-2-2.
+//  Copyright (c) 2012年 ivysoft. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+//当某教程结束后保存状态进userDefault
+#define kTutorialNormalDone @"kTutorialNormalDone"
+
+@protocol ISTutorialViewControllerDataSource <NSObject>
+
+- (NSInteger )numberOfTutorialPages;
+- (UIImage* )tutorialImageOfPageIndex:(NSInteger)index;
+
+@optional
+- (void)isHide;
+- (void)isShow;
+@end
+
+@interface ISTutorialViewController : UIViewController <UIScrollViewDelegate>
+
+@property (nonatomic, retain) UIScrollView *contentView;
+@property (nonatomic, retain) UIPageControl *pageControl;
+@property (nonatomic, assign) id <ISTutorialViewControllerDataSource> delegate;
+@property (nonatomic, assign) BOOL isSetAbout;
+@property (nonatomic, assign) BOOL isRootView;
+@property (nonatomic, assign) NSInteger currentPage;
+
++ (ISTutorialViewController*)sharedTutorialViewController;
+//检测教程是否在delegate的view中显示
+- (BOOL)testDelegate:(id<ISTutorialViewControllerDataSource>)aDelegate;
+//在某个view中展示教程
+- (void)showTutorialInView:(UIView*)aView;
+//教程结束
+- (void)dismissTurorialView;
+
+//刷新，用于转屏后等
+- (void)refreshContent;
+
+@end

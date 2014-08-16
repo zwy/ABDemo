@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/lago/!svn/ver/7463/trunk/D-Build/iOS/Dependence/Additions
+END
+NSData+Extension.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/lago/!svn/ver/6702/trunk/D-Build/iOS/Dependence/Additions/NSData+Extension.m
+END
+ISTutorialViewController.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/lago/!svn/ver/6702/trunk/D-Build/iOS/Dependence/Additions/ISTutorialViewController.h
+END
+ConstantsDefine.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/lago/!svn/ver/7153/trunk/D-Build/iOS/Dependence/Additions/ConstantsDefine.h
+END
+LGHMACAlgorithm.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/lago/!svn/ver/93/trunk/D-Build/iOS/Dependence/Additions/LGHMACAlgorithm.h
+END
+NSString+TKUtilities.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lago/!svn/ver/1834/trunk/D-Build/iOS/Dependence/Additions/NSString+TKUtilities.h
+END
+ISTutorialViewController.m
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/lago/!svn/ver/7463/trunk/D-Build/iOS/Dependence/Additions/ISTutorialViewController.m
+END
+UIImage+TKUtilities.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lago/!svn/ver/6702/trunk/D-Build/iOS/Dependence/Additions/UIImage+TKUtilities.h
+END
+LGHMACAlgorithm.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/lago/!svn/ver/3229/trunk/D-Build/iOS/Dependence/Additions/LGHMACAlgorithm.m
+END
+NSData+Extension.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/lago/!svn/ver/93/trunk/D-Build/iOS/Dependence/Additions/NSData+Extension.h
+END
+NSString+TKUtilities.m
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lago/!svn/ver/6702/trunk/D-Build/iOS/Dependence/Additions/NSString+TKUtilities.m
+END
+UIImage+TKUtilities.m
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lago/!svn/ver/6702/trunk/D-Build/iOS/Dependence/Additions/UIImage+TKUtilities.m
+END

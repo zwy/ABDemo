@@ -1,0 +1,16 @@
+//
+//  LGHMACAlgorithm.h
+//  Lago
+//
+//  Created by 杜 计生 on 13-6-17.
+//  Copyright (c) 2013年 dujisheng. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface LGHMACAlgorithm : NSObject
++ (NSString *)hmac_sha1:(NSData *)key text:(NSString *)text;
++ (NSString *)hmac_md5:(NSData *)key text:(NSString *)text;
++ (NSData *)ivWithNum:(NSInteger)num;
+
+@end

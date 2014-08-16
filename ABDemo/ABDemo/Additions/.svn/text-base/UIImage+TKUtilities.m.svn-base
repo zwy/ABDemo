@@ -1,0 +1,175 @@
+//
+//  UIImage+TKUtilities.m
+//  TKContactsMultiPicker
+//
+//  Created by Jongtae Ahn on 12. 8. 31..
+//  Copyright (c) 2012년 TABKO Inc. All rights reserved.
+//
+
+#import "UIImage+TKUtilities.h"
+#import "LGAppDelegate.h"
+@implementation UIImage (TKUtilities)
+
+- (UIImage*)thumbnailImage:(CGSize)targetSize
+{
+    UIImage *sourceImage = self;
+    UIImage *newImage = nil;
+    CGFloat screenScale = [[UIScreen mainScreen] scale];
+    CGSize imageSize = sourceImage.size;
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat targetWidth = targetSize.width * screenScale;
+    CGFloat targetHeight = targetSize.height * screenScale;
+    CGFloat scaleFactor = 0.0;
+    CGFloat scaledWidth = targetWidth;
+    CGFloat scaledHeight = targetHeight;
+    CGPoint thumbnailPoint = CGPointMake(0.0,0.0);
+    
+    if (CGSizeEqualToSize(imageSize, targetSize) == NO) 
+    {
+        CGFloat widthFactor = targetWidth / width;
+        CGFloat heightFactor = targetHeight / height;
+        
+        if (widthFactor > heightFactor) 
+            scaleFactor = widthFactor; // scale to fit height
+        else
+            scaleFactor = heightFactor; // scale to fit width
+        scaledWidth  = width * scaleFactor;
+        scaledHeight = height * scaleFactor;
+        
+        // center the image
+        if (widthFactor > heightFactor)
+        {
+            thumbnailPoint.y = (targetHeight - scaledHeight) * 0.5; 
+        }
+        else 
+            if (widthFactor < heightFactor)
+            {
+                thumbnailPoint.x = (targetWidth - scaledWidth) * 0.5;
+            }
+    }       
+    
+    UIGraphicsBeginImageContext(CGSizeMake(targetWidth, targetHeight)); // this will crop
+    
+    CGRect thumbnailRect = CGRectZero;
+    thumbnailRect.origin = thumbnailPoint;
+    thumbnailRect.size.width  = scaledWidth;
+    thumbnailRect.size.height = scaledHeight;
+    
+    [sourceImage drawInRect:thumbnailRect];
+    
+    newImage = UIGraphicsGetImageFromCurrentImageContext();
+
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
+- (UIImage *)scaleToSize:(UIImage *)img size:(CGSize)size{
+    // 创建一个bitmap的context
+    // 并把它设置成为当前正在使用的context
+    UIGraphicsBeginImageContext(size);
+    // 绘制改变大小的图片
+    [img drawInRect:CGRectMake(0, 0, size.width, size.height)];
+    // 从当前context中创建一个改变大小后的图片
+    UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+    // 使当前的context出堆栈
+    UIGraphicsEndImageContext();
+    // 返回新的改变大小后的图片
+    
+    return scaledImage;
+}
+
+- (UIImage *)scaleToSize:(UIImage *)img size:(CGSize)size compressionQuality:(CGFloat)quality
+{
+    UIImage *scaleImage = [img scaleToSize:img size:size];
+    NSData *imageData = UIImageJPEGRepresentation(scaleImage, quality);
+    
+   return [UIImage imageWithData:imageData];
+}
+
+- (UIImage*)imageByScalingAndCroppingForSize:(CGSize)targetSize
+{
+    UIImage *sourceImage = self;
+    UIImage *newImage = nil;
+    CGSize imageSize = sourceImage.size;
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat targetWidth = targetSize.width;
+    CGFloat targetHeight = targetSize.height;
+    CGFloat scaleFactor = 0.0;
+    CGFloat scaledWidth = targetWidth;
+    CGFloat scaledHeight = targetHeight;
+    CGPoint thumbnailPoint = CGPointMake(0.0,0.0);
+    
+    if (CGSizeEqualToSize(imageSize, targetSize) == NO)
+    {
+        CGFloat widthFactor = targetWidth / width;
+        CGFloat heightFactor = targetHeight / height;
+        
+        if (widthFactor > heightFactor)
+            scaleFactor = widthFactor; // scale to fit height
+        else
+            scaleFactor = heightFactor; // scale to fit width
+        scaledWidth  = width * scaleFactor;
+        scaledHeight = height * scaleFactor;
+        
+        // center the image
+        if (widthFactor > heightFactor)
+        {
+            thumbnailPoint.y = (targetHeight - scaledHeight) * 0.5;
+        }
+        else
+            if (widthFactor < heightFactor)
+            {
+                thumbnailPoint.x = (targetWidth - scaledWidth) * 0.5;
+            }
+    }
+    
+    UIGraphicsBeginImageContext(targetSize); // this will crop
+    
+    CGRect thumbnailRect = CGRectZero;
+    thumbnailRect.origin = thumbnailPoint;
+    thumbnailRect.size.width  = scaledWidth;
+    thumbnailRect.size.height = scaledHeight;
+    
+    [sourceImage drawInRect:thumbnailRect];
+    
+    newImage = UIGraphicsGetImageFromCurrentImageContext();
+    if(newImage == nil)
+        NSLog(@"could not scale image");
+    
+    //pop the context to get back to the default
+    UIGraphicsEndImageContext();
+    return newImage;
+}
++ (UIImage *)imageWithContentsOfFileInDocument:(NSString *)path
+{
+    NSString *newPath = path;
+    NSRange range = [path rangeOfString:@"Documents"];
+    if (range.location != NSNotFound) {
+        NSRange docrange = NSMakeRange(0, range.location+9);
+        newPath = [path stringByReplacingCharactersInRange:docrange withString:[[LGAppDelegate shareDelegate] applicationDocmentDirectory]];
+    }
+    return [UIImage imageWithContentsOfFile:newPath];
+}
+
+
+@end
+
+@implementation UIImageView (TKUtilitiesImageView)
+
++ (UIImage*)imageNamedForDevice:(NSString*)name {
+    
+    UIImage *returnImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@", name]];
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+    {
+        if (([UIScreen mainScreen].bounds.size.height * [UIScreen mainScreen].scale) >=1136)
+        {
+            return [UIImage imageNamed:[NSString stringWithFormat:@"%@-568h@2x", name]];
+        }
+    }
+    
+    return returnImage;
+}
+
+@end

@@ -1,0 +1,185 @@
+/*
+ Copyright (c) 2010, Sungjin Han <meinside@gmail.com>
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+
+  * Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+  * Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+  * Neither the name of meinside nor the names of its contributors may be
+    used to endorse or promote products derived from this software without
+    specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+ */
+//
+//  NSData+Extension.m
+//  iPhoneLib,
+//  Helper Functions and Classes for Ordinary Application Development on iPhone
+//
+//  Created by meinside on 09. 12. 4.
+//
+//  last update: 10.07.21.
+//
+
+#import "NSData+Extension.h"
+
+#import "GTM_Base64.h"
+
+@implementation NSData (NSDataExtension)
+
+#pragma mark -
+#pragma mark AES encrypt/decrypt functions
+
+- (NSData*) aesEncryptWithKey:(NSData *)key initialVector:(const void *)iv
+{
+	Byte *keyBytes = (Byte *)[key bytes];
+    Byte *ivBuffer = (Byte *)iv;
+	NSInteger keyLength = [key length];
+	if(keyLength != kCCKeySizeAES128 && keyLength != kCCKeySizeAES192 && keyLength != kCCKeySizeAES256)
+	{
+		NSLog(@"key length is not 128/192/256-bits long");
+
+		return nil;
+	}
+	
+//	char keyBytes[keyLength + 1];
+//	bzero(keyBytes, sizeof(keyBytes));
+//	[key getCString:keyBytes maxLength:sizeof(keyBytes) encoding:NSUTF8StringEncoding];
+
+	size_t numBytesEncrypted = 0;
+	size_t encryptedLength = [self length] + kCCBlockSizeAES128;
+	char* encryptedBytes = malloc(encryptedLength);
+	
+	CCCryptorStatus result = CCCrypt(kCCEncrypt, 
+									 kCCAlgorithmAES128 , 
+									 (iv == nil ? kCCOptionECBMode | kCCOptionPKCS7Padding : kCCOptionPKCS7Padding),	//default: CBC (when initial vector is supplied)
+									 keyBytes,
+									 keyLength, 
+									 ivBuffer,
+									 [self bytes], 
+									 [self length],
+									 encryptedBytes, 
+									 encryptedLength,
+									 &numBytesEncrypted);
+
+	if(result == kCCSuccess){
+		NSData *encrptData = [NSData dataWithBytesNoCopy:encryptedBytes length:numBytesEncrypted];
+        return encrptData;//[GTM_Base64 encodeData:encrptData];
+    }
+
+	free(encryptedBytes);
+	return nil;
+}
+
+- (NSData*) aesDecryptWithKey:(NSData *)key initialVector:(const void *)iv
+{
+    Byte *keyBytes = (Byte *)[key bytes];
+    Byte *ivBuffer = (Byte *)iv;
+	NSInteger keyLength = [key length];
+	if(keyLength != kCCKeySizeAES128 && keyLength != kCCKeySizeAES192 && keyLength != kCCKeySizeAES256)
+	{
+		NSLog(@"key length is not 128/192/256-bits long");
+
+		return nil;
+	}
+    
+//	char keyBytes[keyLength+1];
+//	bzero(keyBytes, sizeof(keyBytes));
+//	[key getCString:keyBytes maxLength:sizeof(keyBytes) encoding:NSUTF8StringEncoding];
+//    NSData *dataSelf = [GTM_Base64 decodeData:self];
+	size_t numBytesDecrypted = 0;
+	size_t decryptedLength = [self length] + kCCBlockSizeAES128;
+	char* decryptedBytes = malloc(decryptedLength);
+	
+	CCCryptorStatus result = CCCrypt(kCCDecrypt, 
+									 kCCAlgorithmAES128 , 
+                                     (iv == nil ? kCCOptionECBMode | kCCOptionPKCS7Padding : kCCOptionPKCS7Padding),	//default: CBC (when initial vector is supplied)
+									 keyBytes,
+									 keyLength, 
+									 ivBuffer,
+									 [self bytes],
+									 [self length],
+									 decryptedBytes, 
+									 decryptedLength,
+									 &numBytesDecrypted);
+
+	if(result == kCCSuccess)
+    {
+        NSData *decodeData = [NSData dataWithBytesNoCopy:decryptedBytes length:numBytesDecrypted];
+        
+        return decodeData;
+	}
+	free(decryptedBytes);
+	return nil;
+}
+
+- (NSString*)stringWithHexBytesss {
+	static const char hexdigits[] = "0123456789ABCDEF";
+	const size_t numBytes = [self length];
+	const unsigned char* bytes = [self bytes];
+	char *strbuf = (char *)malloc(numBytes * 2 + 1);
+	char *hex = strbuf;
+	NSString *hexBytes = nil;
+    
+	for (int i = 0; i<numBytes; ++i) {
+		const unsigned char c = *bytes++;
+		*hex++ = hexdigits[(c >> 4) & 0xF];
+		*hex++ = hexdigits[(c ) & 0xF];
+	}
+	*hex = 0;
+	hexBytes = [NSString stringWithUTF8String:strbuf];
+	free(strbuf);
+	return hexBytes;
+}
+
+static int asciitable[128] = {
+    99,99,99,99, 99,99,99,99, 99,99,99,99, 99,99,99,99,
+    99,99,99,99, 99,99,99,99, 99,99,99,99, 99,99,99,99,
+    99,99,99,99, 99,99,99,99, 99,99,99,99, 99,99,99,99,
+    0, 1, 2, 3,   4, 5, 6, 7,  8, 9,99,99, 99,99,99,99, // 0..9
+    99,10,11,12, 13,14,15,99, 99,99,99,99, 99,99,99,99, // A..F
+    99,99,99,99, 99,99,99,99, 99,99,99,99, 99,99,99,99,
+    99,10,11,12, 13,14,15,99, 99,99,99,99, 99,99,99,99, // a..f
+    99,99,99,99, 99,99,99,99, 99,99,99,99, 99,99,99,99
+};
+
+- (NSData*)hex2raw {
+    // Based on Erik Doernenburg's NSData+MIME.m
+    const char *source, *endOfSource;
+    NSMutableData *decodedData;
+    char *dest;
+    
+    source = [self bytes];
+    endOfSource = source + [self length];
+    decodedData = [NSMutableData dataWithLength:[self length]];
+    dest = [decodedData mutableBytes];
+    
+    while (source < endOfSource) {
+        if (isxdigit(*source) && isxdigit(*(source+1))) {
+            *dest++ = asciitable[(int)*source] * 16 + asciitable[(int)*(source+1)];
+            source += 2;
+        } else
+            return nil;
+    }
+    
+    [decodedData setLength:(unsigned int)((void *)dest - [decodedData mutableBytes])];
+    
+    return decodedData;
+}
+
+@end

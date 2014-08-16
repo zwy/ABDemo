@@ -1,0 +1,379 @@
+//
+//  ISTutorialViewController.m
+//  iStudy
+//
+//  Created by liu on 12-2-2.
+//  Copyright (c) 2012年 ivysoft. All rights reserved.
+//
+
+#import "ISTutorialViewController.h"
+#import "LGAppDelegate.h"
+@implementation ISTutorialViewController
+@synthesize contentView = _contentView;
+@synthesize pageControl = _pageControl;
+@synthesize delegate = _delegate;
+
+static ISTutorialViewController *aTurorialViewController;
++ (ISTutorialViewController*)sharedTutorialViewController
+{
+    if (!aTurorialViewController) {
+        aTurorialViewController = [[ISTutorialViewController alloc] initWithNibName:nil bundle:nil];
+    }
+    return aTurorialViewController;
+}
+
+- (BOOL)testDelegate:(id<ISTutorialViewControllerDataSource>)aDelegate
+{
+    if ([self.delegate isEqual:aDelegate]) {
+        return YES;
+    }
+    return NO;
+}
+
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+
+- (void)didReceiveMemoryWarning
+{
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Release any cached data, images, etc that aren't in use.
+}
+
+#pragma mark - View lifecycle
+
+
+// Implement loadView to create a view hierarchy programmatically, without using a nib.
+- (void)loadView
+{
+    UIView *aView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 768, 1004)];
+    aView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin|UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleWidth;
+    [aView setBackgroundColor:[UIColor blackColor]];
+    [self setView:aView];
+    
+    UIScrollView *aScrollView = [[UIScrollView alloc] init];
+    aScrollView.frame = aView.bounds;
+    aScrollView.tag = -1;
+    aScrollView.delegate = self;
+    
+    [aView addSubview:aScrollView];
+   
+    
+    self.contentView = aScrollView;
+    self.contentView.showsHorizontalScrollIndicator = NO;
+    self.contentView.showsVerticalScrollIndicator = NO;
+    self.contentView.bounces = NO;
+//    self.contentView.scrollEnabled = NO;
+    
+    aScrollView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin|UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleWidth;
+    aScrollView.pagingEnabled = YES;
+    
+//    设置背景颜色
+    aScrollView.backgroundColor = [UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.7];
+ 
+    //控制页面
+    UIPageControl *aPageControl = [[UIPageControl alloc] init];
+    aPageControl.hidesForSinglePage = YES;
+    aPageControl.numberOfPages = 1;
+    
+//    [aView addSubview:aPageControl];
+//    aPageControl.currentPageIndicatorTintColor = [UIColor blackColor];
+    aPageControl.pageIndicatorTintColor = [UIColor lightGrayColor];
+    self.pageControl = aPageControl;
+    self.pageControl.frame = CGRectMake(0, self.view.frame.size.height-20, self.view.frame.size.width, 20);
+    if(self.view.frame.size.height > self.view.frame.size.width){
+        self.pageControl.center = CGPointMake(self.view.frame.size.width/2,self.view.frame.size.height-30);
+    }else{
+        self.pageControl.center = CGPointMake(self.view.frame.size.width/2,self.view.frame.size.height- 200);
+    }
+    aPageControl.enabled = YES;
+    aPageControl.autoresizingMask = UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleWidth;
+    [aPageControl addTarget:self action:@selector(changePage:) forControlEvents:UIControlEventValueChanged];
+}
+
+
+
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    [self suitIOS7];
+    if (self.isSetAbout||self.isRootView) {
+        self.navigationController.navigationBarHidden = YES;
+    }
+    
+//    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+//    [self.view addGestureRecognizer:tapGesture];
+//    [tapGesture release];
+}
+
+-(void) dealloc
+{
+    self.contentView = nil;
+    self.delegate = nil;
+    self.pageControl = nil;
+    self.delegate = nil;
+    if (_isSetAbout){
+        _isSetAbout = NO;
+    }
+    if (_isRootView) {
+        _isRootView = NO;
+    }
+}
+
+
+- (void)viewDidUnload
+{
+    [super viewDidUnload];
+    // Release any retained subviews of the main view.
+    // e.g. self.myOutlet = nil;
+}
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    // Return YES for supported orientations
+    
+   
+    
+    
+    return YES;//(interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+//- (void)
+#pragma mark - Method
+- (void)changePage:(UIPageControl*)aPageControl
+{
+    NSInteger pageNumber = aPageControl.currentPage;
+    [self.contentView setContentOffset:CGPointMake(pageNumber * self.contentView.frame.size.width, 0) animated:YES];
+}
+
+- (void)dismissTurorialView
+{
+    [self.view removeFromSuperview];
+    if (_delegate && [_delegate respondsToSelector:@selector(isHide)]) {
+        [_delegate isHide];
+    }
+    self.delegate = nil;
+    
+}
+- (void)showTutorialInView:(UIView*)aView
+{
+    self.currentPage = 0;
+    if (!_delegate) {
+        return;
+    }
+    if (_delegate && [_delegate respondsToSelector:@selector(isShow)]) {
+        [_delegate isShow];
+    }
+    self.view.frame = CGRectMake(0, 0, aView.frame.size.width, aView.frame.size.height);
+    [aView addSubview:self.view];
+//    self.view.alpha = 0.1;
+//    [UIView beginAnimations:@"show" context:nil];
+//    
+//    [UIView setAnimationDelay:0.5];
+//    [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+//    self.view.alpha = 1.0;
+//    [UIView commitAnimations];
+    //    设为第一页
+    
+    self.pageControl.currentPage = 0;
+    
+    [self performSelector:@selector(refreshContent) withObject:nil afterDelay:0.1];
+}
+
+//ios5中会调用
+- (void)viewDidLayoutSubviews
+{
+    
+    [self refreshContent];
+}
+- (void)refreshContent
+{
+    
+    if (!self.delegate) {
+        return;
+    }
+    NSInteger pageNumber = [self.delegate numberOfTutorialPages];
+    self.pageControl.numberOfPages = pageNumber;
+    self.pageControl.frame = CGRectMake(0, self.view.frame.size.height-20, self.view.frame.size.width, 20);
+    
+    if(self.view.frame.size.height > 480){
+        self.pageControl.center = CGPointMake(self.view.frame.size.width/2,self.view.frame.size.height-30);
+    }else{
+        self.pageControl.center = CGPointMake(self.view.frame.size.width/2,self.view.frame.size.height-18);
+    }
+    CGSize contentSize = CGSizeMake(self.contentView.frame.size.width*pageNumber, self.contentView.frame.size.height);
+    
+    self.contentView.contentSize = contentSize;
+    
+    //    [self.contentView removeAllSubviews];
+    if(self.contentView.subviews.count >0){
+        for(UIImageView *imageView in self.contentView.subviews){
+            UIActivityIndicatorView  *avt = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(88, 38, 24, 24)];
+            avt.center = imageView.center;
+            [imageView addSubview:avt];
+            [avt startAnimating];
+            //            UIImage *image = [self.delegate tutorialImageOfPageIndex:imageView.tag];
+            //            if (!image) {
+            //                NSLog(@"获取图片失败，返回");
+            //                return;
+            //            }
+            //            imageView.image = image;
+            [NSThread detachNewThreadSelector:@selector(loadImages:) toTarget:self withObject:[NSNumber numberWithInteger:imageView.tag]];
+            //            UIImageView *tutorialImageView = [[UIImageView alloc] initWithImage:image];
+            //            tutorialImageView.tag = i;
+            CGRect frame = CGRectMake(imageView.tag*self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height);
+            imageView.frame = frame;
+        }
+    }else{
+        
+        for (int i=0; i<pageNumber; i++) {
+            UIImageView *tutorialImageView = [[UIImageView alloc] init];
+            tutorialImageView.tag = i;
+            CGRect frame = CGRectMake(i*self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height);
+            tutorialImageView.frame = frame;
+            [self.contentView addSubview:tutorialImageView];
+            UIActivityIndicatorView  *avt = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(88, 38, 24, 24)];
+            avt.center = CGPointMake(tutorialImageView.frame.size.width/2,tutorialImageView.frame.size.height/2);
+            [tutorialImageView addSubview:avt];
+            [avt startAnimating];
+            if (i == pageNumber-1) {
+                UIButton *enterButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//                enterButton.frame  = CGRectMake(0, 0, 275, 44);
+//                if (IPHONE5) {
+//                   enterButton.center = CGPointMake(tutorialImageView.frame.size.width/2, tutorialImageView.frame.size.height-78);
+//                }
+//                else
+//                {
+//                    enterButton.center = CGPointMake(tutorialImageView.frame.size.width/2, tutorialImageView.frame.size.height-70);
+//                }
+                enterButton.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);;
+                
+//                [enterButton setBackgroundImage:WELCOME_BTN forState:UIControlStateNormal];
+//                [enterButton setBackgroundImage:WELCOME_BTN_PRESSED forState:UIControlStateHighlighted];
+//                [enterButton setTitle:NSLocalizedString(@"guide_go_into_lago", @"马上体验") forState:UIControlStateNormal];
+//                [enterButton setTitle:@"进入拉钩" forState:UIControlStateHighlighted];
+                
+                [enterButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//                [enterButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+//                 NSArray *arr = [UIFont fontNamesForFamilyName:@"Chalkduster"];
+                //enterButton.titleLabel.font   fontWithName:@"Chalkduster" size:16
+                enterButton.titleLabel.font = [UIFont italicSystemFontOfSize:16];
+                if (self.isSetAbout) {
+                    [enterButton addTarget:self action:@selector(back) forControlEvents:UIControlEventTouchUpInside];
+                }
+                else if (self.isRootView) {
+                    [enterButton addTarget:self action:@selector(enterRootView) forControlEvents:UIControlEventTouchUpInside];
+                }
+                else
+                {
+                    [enterButton addTarget:self action:@selector(enterApplication) forControlEvents:UIControlEventTouchUpInside];
+                }
+                
+                
+                    
+                [tutorialImageView addSubview:enterButton];
+                [tutorialImageView setUserInteractionEnabled:YES];
+            }
+            [NSThread detachNewThreadSelector:@selector(loadImages:) toTarget:self withObject:[NSNumber numberWithInt:i]];
+            //        UIImage *image = [self.delegate tutorialImageOfPageIndex:i];
+            //        if (!image) {
+            //            NSLog(@"获取图片失败，返回");
+            //            return;
+            //        }
+            //        tutorialImageView.image = image;
+        }
+    }
+    [self.contentView setContentOffset:CGPointMake(self.pageControl.currentPage*self.contentView.frame.size.width, 0)];
+    
+}
+
+-(void) back
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)enterApplication
+{
+    [self.view removeFromSuperview];
+    aTurorialViewController = nil;
+    
+}
+-(void)enterRootView
+{
+    [[LGAppDelegate shareDelegate].rootViewController rootViewCheckHasPhone];
+    [self.view removeFromSuperview];
+    aTurorialViewController = nil;
+}
+
+-(void)loadImages:(NSNumber *)index{
+    UIImage *image = [self.delegate tutorialImageOfPageIndex:[index integerValue]];
+	if(image)
+	{
+		NSArray *array = [NSArray arrayWithObjects:image,index,nil];
+		[self performSelectorOnMainThread:@selector(fillImage:) withObject:array  waitUntilDone:NO];
+	}
+}
+
+-(void)fillImage:(NSArray *)arr{
+	
+	UIImageView *ima = (UIImageView *)[self.contentView viewWithTag:[[arr objectAtIndex:1] intValue]];
+	if(ima&&[ima isKindOfClass:[UIImageView class]])
+        ima.image = [arr objectAtIndex:0];
+	for(id obj in ima.subviews)
+	{
+		if([obj isKindOfClass:[UIActivityIndicatorView class]])
+			[obj removeFromSuperview];
+	}
+	
+}
+
+#pragma mark scrollview delegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    int pageNumber = scrollView.contentOffset.x/scrollView.frame.size.width;
+    self.pageControl.currentPage = pageNumber;
+    [self.pageControl updateCurrentPageDisplay];
+}
+
+//BOOL final = NO;
+//- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+//{
+//    if (scrollView.contentOffset.x==scrollView.contentSize.width-scrollView.frame.size.width) {
+//        if (final) {
+//            [self dismissTurorialView];
+//        }
+//        final = YES;
+//    }
+//    else if (scrollView.contentOffset.x<scrollView.contentSize.width-scrollView.frame.size.width) {
+//        final = NO;
+//    }
+//    
+//    
+//}
+
+//- (void)handleTap:(UITapGestureRecognizer*)aTapGesture
+//{
+//    int pageNumber = [self.delegate numberOfTutorialPages];
+//    int index = self.contentView.contentOffset.x/self.contentView.frame.size.width;
+//    if (index+1<pageNumber) {
+//        CGPoint offset = self.contentView.contentOffset;
+//        offset.x+=self.contentView.frame.size.width;
+//        [self.contentView setContentOffset:offset];
+//        self.pageControl.currentPage = index+1;
+//        [self.pageControl updateCurrentPageDisplay];
+//    }
+//    else {
+//        [self dismissTurorialView];
+//    }
+//}
+@end
