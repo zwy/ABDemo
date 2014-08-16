@@ -413,8 +413,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "469"
             endingLineNumber = "469"
-            landmarkName = "@implementation ViewController"
-            landmarkType = "3">
+            landmarkName = "-changeAddressBookWithIndex:"
+            landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
