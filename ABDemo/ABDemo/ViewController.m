@@ -123,6 +123,7 @@
                   style:UITableViewStylePlain];
     _tableView.delegate = self;
     _tableView.dataSource = self;
+//    _tableView.editing = YES;
     [self getDataSoure];
     [self.view addSubview:_tableView];
 }
@@ -170,6 +171,24 @@
     
 }
 
+-(UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+
+    return UITableViewCellEditingStyleDelete;
+}
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+
+        return YES;
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        NSLog(@"delete");
+    }
+}
 
 #pragma mark - 通讯录
 // creat 跟通讯录相关的操作
