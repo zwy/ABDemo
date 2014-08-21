@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface ViewController : UIViewController<UITableViewDelegate, UITableViewDataSource,UISearchDisplayDelegate,UISearchBarDelegate>
-@property (nonatomic, retain)UITableView *tableView;
+@property (nonatomic, retain)IBOutlet UITableView *tableView;
 
 @property (nonatomic,strong)UISearchDisplayController *searchController;
 @property (nonatomic,strong)UISearchBar *searchBar;

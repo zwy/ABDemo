@@ -16,6 +16,10 @@
 
 #define SearchBarRect1 CGRectMake(0, -45, kScreenWidth, 45)
 #define SearchBarRect2 CGRectMake(0, 20, kScreenWidth, 45)
+#define SearchBarRect3 CGRectMake(0, 0, kScreenWidth - 50, 44)
+
+#define IOS7_OR_LATER   ([[[UIDevice currentDevice] systemVersion] compare:@"7.0"] != NSOrderedAscending)
+
 @interface ViewController ()
 @property (nonatomic, assign)ABAddressBookRef addressBooks;
 @property (nonatomic, retain)NSMutableArray *personalArray;// 联系人列表
@@ -45,13 +49,21 @@
 
 - (void)creatNav
 {
-    UIBarButtonItem *add = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(add)];
+    UILabel *titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 80, 40)];
+    titleLabel.font = [UIFont boldSystemFontOfSize:22];
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    titleLabel.text = @"通讯录";
+    titleLabel.textColor = [UIColor blackColor];
+    titleLabel.backgroundColor = [UIColor clearColor];
+    self.navigationItem.titleView = titleLabel;
+    
+//    UIBarButtonItem *add = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(add)];
     UIBarButtonItem *search = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(search)];
-    UIBarButtonItem *delete = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(delete)];
-    self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:search,add,delete, nil];
-    
+//    UIBarButtonItem *delete = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(delete)];
+//    self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:search,add,delete, nil];
+//    
     self.navigationController.navigationBar.barTintColor = [UIColor yellowColor];
-    
+    self.navigationItem.rightBarButtonItem = search;
 
 }
 
@@ -70,13 +82,31 @@
 - (void)search
 {
     NSLog(@"search");
-    _searchBar.frame = SearchBarRect2;
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelEditingSearchBar)];
+    
+    self.navigationItem.titleView = self.searchController.searchBar;
+    if (IOS7_OR_LATER) {
+        _searchController.displaysSearchBarInNavigationBar = YES;
+    }
+    _searchBar.hidden = NO;
+//    _searchBar.frame = SearchBarRect2;
     [_searchBar becomeFirstResponder];
+    [self.searchController setActive:YES animated:YES];
+    [self.searchBar becomeFirstResponder];
+//    [self.searchController.searchBar becomeFirstResponder];
 }
-
+- (void)cancelEditingSearchBar
+{
+    [self.searchBar resignFirstResponder];
+    [self.searchController setDisplaysSearchBarInNavigationBar:NO];
+    [self.searchController setActive:NO animated:YES];
+    //    [self.searchController.searchBar removeFromSuperview];
+    [self creatNav];
+}
 - (void)createSearchBar
 {
-    _searchBar = [[UISearchBar alloc] initWithFrame:SearchBarRect1];
+    _searchBar = [[UISearchBar alloc] initWithFrame:SearchBarRect3];
     _searchBar.placeholder = @"搜索成员";
     _searchBar.barTintColor = [UIColor yellowColor];
     _searchBar.delegate = self;
@@ -87,14 +117,18 @@
     _searchController.delegate = self;
     _searchController.searchResultsDataSource = self;
     _searchController.searchResultsDelegate = self;
-    
-    [self.navigationController.view addSubview:_searchBar];
+    _searchBar.hidden = YES;
+    if ([self.searchController respondsToSelector:@selector(displaysSearchBarInNavigationBar)]) {
+        self.searchController.displaysSearchBarInNavigationBar = NO;
+    }
+//    [self.navigationController.view addSubview:_searchBar];
 }
 #pragma mark - UISearchBarDelegate
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
     searchBar.text = @"";
-    _searchBar.frame = SearchBarRect1;
+    _searchBar.hidden = YES;
     [searchBar resignFirstResponder];
+    [self cancelEditingSearchBar];
 }
 
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar {
@@ -105,9 +139,16 @@
     return YES;
 }
 
+- (void)searchBarResultsListButtonClicked:(UISearchBar *)searchBar NS_AVAILABLE_IOS(3_2)
+{
+    NSLog(@"click");
+}
+
 #pragma mark - UISearchDisplayController delegate methods
 - (void)searchBar:(UISearchBar *)searchBar
     textDidChange:(NSString *)searchText {
+    NSLog(@"textDidchange");
+    [_tableView reloadData];
 }
 
 - (void)searchDisplayController:(UISearchDisplayController *)controller
@@ -115,17 +156,63 @@
     NSLog(@"table from is %@", NSStringFromCGRect(tableView.frame));
 }
 
+// ######
+- (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
+{
+    [self cancelEditingSearchBar];
+}
+//为搜索控制器里的tableView设置数据源和代理
+- (void) searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
+{
+    if (IOS7_OR_LATER) {
+        [self fixSearchControllerPositionForiOS7];
+    }
+}
+- (void)fixSearchControllerPositionForiOS7 {
+    UIView *view = self.searchController.searchResultsTableView.superview;
+    if (view) {
+
+        CGFloat yOffset = 64.0;
+        CGRect viewFrame = view.frame;
+        if (CGRectGetMinY(viewFrame) == 0) {
+            viewFrame.origin.y = -yOffset;
+            viewFrame.size.height += yOffset;
+            [UIView animateWithDuration:0.1 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                view.frame = viewFrame;
+            } completion:nil];
+        }
+        UIView *searchContainerView = view.superview;
+        for (NSInteger i = 0; i < [searchContainerView.subviews count]; i++) {
+            UIView *subview = searchContainerView.subviews[i];
+            if (CGRectGetMinY(subview.frame) > 0) {
+                CGRect subviewFrame = subview.frame;
+                CGFloat offset = CGRectGetMinY(subviewFrame);
+                subviewFrame.origin.y = 0;
+                
+                if (offset == 20.0) {
+                    // this subview is partially responsible for the table offset and overlays the top table rows, so set it's height to 0
+                    subviewFrame.size.height = 0;
+                }
+                else {
+                    // this subview is the dimmed overlay view, so increase it's height by it's original origin.y so it fills the view
+                    subviewFrame.size.height += offset;
+                }
+                subview.frame = subviewFrame;
+            }
+        }
+    }
+}
 #pragma mark - tableView
 - (void)createTableView
 {
-    _tableView = [[UITableView alloc]
-                  initWithFrame:CGRectMake(0, 0, kScreenWidth,kScreenHeight)
-                  style:UITableViewStylePlain];
-    _tableView.delegate = self;
-    _tableView.dataSource = self;
+//    _tableView = [[UITableView alloc]
+//                  initWithFrame:CGRectMake(0, 0, kScreenWidth,kScreenHeight)
+//                  style:UITableViewStylePlain];
+//    _tableView.delegate = self;
+//    _tableView.dataSource = self;
 //    _tableView.editing = YES;
     [self getDataSoure];
-    [self.view addSubview:_tableView];
+//    [self.view addSubview:_tableView];
 }
 - (void)getDataSoure
 {
