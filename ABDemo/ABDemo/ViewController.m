@@ -85,22 +85,20 @@
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelEditingSearchBar)];
     
-    self.navigationItem.titleView = self.searchController.searchBar;
-    if (IOS7_OR_LATER) {
-        _searchController.displaysSearchBarInNavigationBar = YES;
-    }
+    self.navigationItem.titleView = self.searchBar;
+
     _searchBar.hidden = NO;
 //    _searchBar.frame = SearchBarRect2;
-    [_searchBar becomeFirstResponder];
-    [self.searchController setActive:YES animated:YES];
+//    [_searchBar becomeFirstResponder];
+//    [self.searchController setActive:YES animated:YES];
     [self.searchBar becomeFirstResponder];
 //    [self.searchController.searchBar becomeFirstResponder];
 }
 - (void)cancelEditingSearchBar
 {
     [self.searchBar resignFirstResponder];
-    [self.searchController setDisplaysSearchBarInNavigationBar:NO];
-    [self.searchController setActive:NO animated:YES];
+//    [self.searchController setDisplaysSearchBarInNavigationBar:NO];
+//    [self.searchController setActive:NO animated:YES];
     //    [self.searchController.searchBar removeFromSuperview];
     [self creatNav];
 }
@@ -110,17 +108,17 @@
     _searchBar.placeholder = @"搜索成员";
     _searchBar.barTintColor = [UIColor yellowColor];
     _searchBar.delegate = self;
-    _searchController =
-    [[UISearchDisplayController alloc] initWithSearchBar:_searchBar contentsController:self];
-    
-    //为搜索控制器里的tableView设置数据源和代理
-    _searchController.delegate = self;
-    _searchController.searchResultsDataSource = self;
-    _searchController.searchResultsDelegate = self;
+//    _searchController =
+//    [[UISearchDisplayController alloc] initWithSearchBar:_searchBar contentsController:self];
+//    
+//    //为搜索控制器里的tableView设置数据源和代理
+//    _searchController.delegate = self;
+//    _searchController.searchResultsDataSource = self;
+//    _searchController.searchResultsDelegate = self;
     _searchBar.hidden = YES;
-    if ([self.searchController respondsToSelector:@selector(displaysSearchBarInNavigationBar)]) {
-        self.searchController.displaysSearchBarInNavigationBar = NO;
-    }
+//    if ([self.searchController respondsToSelector:@selector(displaysSearchBarInNavigationBar)]) {
+//        self.searchController.displaysSearchBarInNavigationBar = NO;
+//    }
 //    [self.navigationController.view addSubview:_searchBar];
 }
 #pragma mark - UISearchBarDelegate
@@ -164,44 +162,44 @@
 //为搜索控制器里的tableView设置数据源和代理
 - (void) searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
 {
-    if (IOS7_OR_LATER) {
-        [self fixSearchControllerPositionForiOS7];
-    }
+//    if (IOS7_OR_LATER) {
+//        [self fixSearchControllerPositionForiOS7];
+//    }
 }
-- (void)fixSearchControllerPositionForiOS7 {
-    UIView *view = self.searchController.searchResultsTableView.superview;
-    if (view) {
-
-        CGFloat yOffset = 64.0;
-        CGRect viewFrame = view.frame;
-        if (CGRectGetMinY(viewFrame) == 0) {
-            viewFrame.origin.y = -yOffset;
-            viewFrame.size.height += yOffset;
-            [UIView animateWithDuration:0.1 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-                view.frame = viewFrame;
-            } completion:nil];
-        }
-        UIView *searchContainerView = view.superview;
-        for (NSInteger i = 0; i < [searchContainerView.subviews count]; i++) {
-            UIView *subview = searchContainerView.subviews[i];
-            if (CGRectGetMinY(subview.frame) > 0) {
-                CGRect subviewFrame = subview.frame;
-                CGFloat offset = CGRectGetMinY(subviewFrame);
-                subviewFrame.origin.y = 0;
-                
-                if (offset == 20.0) {
-                    // this subview is partially responsible for the table offset and overlays the top table rows, so set it's height to 0
-                    subviewFrame.size.height = 0;
-                }
-                else {
-                    // this subview is the dimmed overlay view, so increase it's height by it's original origin.y so it fills the view
-                    subviewFrame.size.height += offset;
-                }
-                subview.frame = subviewFrame;
-            }
-        }
-    }
-}
+//- (void)fixSearchControllerPositionForiOS7 {
+//    UIView *view = self.searchController.searchResultsTableView.superview;
+//    if (view) {
+//
+//        CGFloat yOffset = 64.0;
+//        CGRect viewFrame = view.frame;
+//        if (CGRectGetMinY(viewFrame) == 0) {
+//            viewFrame.origin.y = -yOffset;
+//            viewFrame.size.height += yOffset;
+//            [UIView animateWithDuration:0.1 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+//                view.frame = viewFrame;
+//            } completion:nil];
+//        }
+//        UIView *searchContainerView = view.superview;
+//        for (NSInteger i = 0; i < [searchContainerView.subviews count]; i++) {
+//            UIView *subview = searchContainerView.subviews[i];
+//            if (CGRectGetMinY(subview.frame) > 0) {
+//                CGRect subviewFrame = subview.frame;
+//                CGFloat offset = CGRectGetMinY(subviewFrame);
+//                subviewFrame.origin.y = 0;
+//                
+//                if (offset == 20.0) {
+//                    // this subview is partially responsible for the table offset and overlays the top table rows, so set it's height to 0
+//                    subviewFrame.size.height = 0;
+//                }
+//                else {
+//                    // this subview is the dimmed overlay view, so increase it's height by it's original origin.y so it fills the view
+//                    subviewFrame.size.height += offset;
+//                }
+//                subview.frame = subviewFrame;
+//            }
+//        }
+//    }
+//}
 #pragma mark - tableView
 - (void)createTableView
 {
@@ -218,6 +216,7 @@
 {
     // TODO 获取要显示的信息
     self.personalArray = (NSMutableArray *)[[AppDelegate shareDelegate] getEntireFromEntityWithLimt:0 Name:NSStringFromClass([Address_Book class]) withSortName:@"table_Id" filterPredicate:nil];
+    [self.tableView reloadData];
 }
 #pragma mark - UITableViewDataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
