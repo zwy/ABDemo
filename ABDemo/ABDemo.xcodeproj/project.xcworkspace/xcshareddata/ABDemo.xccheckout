@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>F2B01C71-AE4F-465C-AF13-FC3E347737E8</string>
+	<key>IDESourceControlProjectName</key>
+	<string>ABDemo</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>6CC15F36-DD0E-44A9-8883-42B3AF58B402</key>
+		<string>https://github.com/zwy/ABDemo.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>ABDemo/ABDemo.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>6CC15F36-DD0E-44A9-8883-42B3AF58B402</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/zwy/ABDemo.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>6CC15F36-DD0E-44A9-8883-42B3AF58B402</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>6CC15F36-DD0E-44A9-8883-42B3AF58B402</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ABDemo</string>
+		</dict>
+	</array>
+</dict>
+</plist>
